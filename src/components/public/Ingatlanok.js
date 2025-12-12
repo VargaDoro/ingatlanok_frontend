@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import Ingatlan from "./Ingatlan";
-import { IngatlanokContext } from "../../contexts/IngatlanokContext";
+import { IngatlanokContext } from "../../contexts/IngatlanokContexts";
 
 export default function Inagtlanok() {
   const { ingatlanokLista,loading, pont } = useContext(IngatlanokContext);
@@ -12,14 +12,16 @@ export default function Inagtlanok() {
     // Ha nincs adat
     return <div>Nincsenek ingatlanok.</div>;
   }
-return (
-    <div className="">
-      <h2>Ingatlanok</h2> 
-      <div className="card">
-      {ingatlanokLista.map((ingatlan) => (
-        <Ingatlan key={ingatlan.id} ingatlan={ingatlan} />
-      ))}
-      </div>
-    </div>
-  );
+    return (
+        <div className="container mt-4">
+            <div className="row g-3">
+                {ingatlanokLista.map((ingatlan) => (
+                <div key={ingatlan.id} className="col-md-4 col-lg-3">
+                    <Ingatlan ingatlan={ingatlan} />
+                </div>
+                ))}
+            </div>
+        </div>
+
+    );
 }

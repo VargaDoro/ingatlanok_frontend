@@ -3,7 +3,7 @@ import "./App.css";
 import PublicPage from "./pages/PublicPage";
 import AdminPage from "./pages/AdminPage";
 import Layout from "./pages/Layout";
-import { IngatlanokProvider } from "./contexts/IngatlanokContext";
+import { IngatlanokProvider } from "./contexts/IngatlanokContexts";
 
 const router = createBrowserRouter([
   {
