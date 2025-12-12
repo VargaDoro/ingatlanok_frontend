@@ -1,70 +1,109 @@
-# Getting Started with Create React App
+# Ingatlanok 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A következő feladatban egy ingatlanok értékesítésével foglalkozó vállalkozás weboldalát kell elkészíteni a feladatleírás és a minta szerint. 
 
-## Available Scripts
+### Publikus felület
 
-In the project directory, you can run:
+1. kategóriák megjelenítése a legördülő listában és az ingatlanok listázása a kiválasztott kategória szerint. 
+<img src="./minta/public_minta1.png" alt="">
+<img src="./minta/public_minta2.png" alt="">
+2. Egyetlen, kiválasztott ingatlan megjelenítése
+<img src="./minta/public_ingatlan_reszletek.png" alt="">
 
-### `npm start`
+### Admin felület
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Ingatlanok megjelenítése táblázatban, kategóriák megjelenítése a legördülő listában és az ingatlanok listázása a kiválasztott kategória szerint. 
+<img src="./minta/admin_ingatlanok_minta1.png" alt="">
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. Egyetlen, kiválasztott ingatlan megjelenítése
+<img src="./minta/admin_ingatlan_szerkesztese.png" alt="">
 
-### `npm test`
+## Backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Adatbázis
 
-### `npm run build`
+<img src="./minta/ab.png" alt="">
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Kategóriák
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Mező neve     | Típus                   | Null érték | Egyéb megjegyzés                                                                                        |
+| ------------- | ----------------------- | ---------- | ------------------------------------------------------------------------------------------------------- |
+| id            | bigint (auto-increment) | NO         | elsődleges kulcs (PRIMARY KEY)                                                                          |
+| kategoria_nev | enum                    | NO         | lehetséges értékek: 'ház', 'lakás', 'építési telek', 'garázs', 'mezőgazdasági épület', 'ipari ingatlan' |
+                                                                   
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### Ingatlanok
 
-### `npm run eject`
+| Mező neve    | Típus                   | Null érték | Egyéb megjegyzés                                              |
+| ------------ | ----------------------- | ---------- | ------------------------------------------------------------- |
+| id           | bigint (auto-increment) | NO         | elsődleges kulcs (PRIMARY KEY)                                |
+| kategoria_id | bigint                  | YES        | idegen kulcs `kategoriak.id`, `NULL` ha törölték a kategóriát |
+| leiras       | text                    | NO         | ingatlan leírása                                              |
+| datum        | timestamp               | NO         | alapértelmezett: aktuális időpont                             |
+| tehermentes  | boolean                 | NO         | ingatlan tehermentes-e                                        |
+| ar           | integer                 | NO         | ingatlan ára                                                  |
+| kepUrl       | string(255)             | NO         | kép elérési útja                                              |
+                        
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Ha a hirdetés dátuma nem kerül megadásra, akkor annak alapértelmezett értéke az aktuális dátum legyen! 
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+A kategoriak tábla  értékei: 
+[
+    'ház',
+    'lakás',
+    'építési telek',
+    'garázs',
+    'mezőgazdasági épület',
+    'ipari ingatlan',
+]
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Végpontok
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+1. **GET /ingatlanok**: visszaadja az összes ingatlan teljes adatait, beleértve a kapcsolódó kategóriát.
 
-## Learn More
+2. **POST /ingatlanok**: új ingatlan létrehozása.
+```
+{ 
+    "kategoria_id": 1, 
+    "leiras": "lorem ipsum...", 
+    "datum": "2025-01-07", 
+    "tehermentes": true, 
+    "ar": 45000000, 
+    "kepUrl": "haz1.jpg" }
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. **GET /kategoriak**: visszaadja az összes kategóriát.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. **DELETE /ingatlanok/{id}**: törli a megadott ID-jú ingatlant; ha nem található, megfelelő 404 választ kell adni.
 
-### Code Splitting
+## A megoldás menete:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+<a href="ingatlan_backend/README.md">Backend</a><br>
+<a href="ingatlan_frontend//README.md">Frontend</a>
 
-### Analyzing the Bundle Size
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## A kiválasztott ingatlan megtekintése külön oldalon
+useNavigate, useLocation használata
 
-### Making a Progressive Web App
+1. Az Ingatlan komponensben használjuk az useNavigate hook-ot. const navigate = useNavigate(); 
+2. a button onClick eseményén helyezzük el a navigációs linket.
+```javascript
+<button
+    className="btn btn-primary"
+    onClick={() => {
+    navigate(`/ingatlan/${ingatlan.id}`, { state: { ingatlan } });
+    }}
+>
+ Megnézem
+</button>
+```
+3. az Api.js rootjai közé helyezzük el az útvonal-komponens összerendezést!
+```javascript
+ { path: "ingatlan/:id", element: <IngatlanReszletes /> },
+```
+4. Az Ingatlanreszletes komponensben felhasználhatjuk az átadott paramétert az alábbiak szerint. 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+A végére egy vissza gombot is elhelyezhetünk. 
 
-### Advanced Configuration
+```javascript
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
